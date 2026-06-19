@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { BookOpen, Settings2, LayoutGrid } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -14,22 +15,31 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import Conversations from '@/pages/Ask/Conversations.vue';
+
+type Conversation = {
+    id: number | string;
+    title: string;
+};
+
+const page = usePage();
+const conversations = computed(() => (page.props.conversations ?? []) as Conversation[]);
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: dashboard(),
+        title: 'Test',
+        href: '/',
         icon: LayoutGrid,
     },
 ];
 
+
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
+        title: 'Settings',
+        href: '/iasettings',
+        icon: Settings2,
     },
     {
         title: 'Documentation',
@@ -45,7 +55,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link :href="('/')">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
@@ -55,6 +65,7 @@ const footerNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain :items="mainNavItems" />
+            <Conversations :conversations="conversations" />
         </SidebarContent>
 
         <SidebarFooter>
