@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Conversations;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -42,6 +44,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            /** Modification By Toto **/
+            'flash' => [
+                'success' => fn () => session('success'),
+            ],
+            'conversations' => fn () => $request->user()
+                ? Conversations::getListConversationsByUserId($request->user()->id)
+                : [],
         ];
     }
 }

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { computed, ref, watch, nextTick } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 
@@ -13,33 +13,20 @@ const md = new MarkdownIt({
                 return hljs.highlight(str, { language: lang }).value;
             } catch (__) {}
         }
-        return ''; // use external default escaping
+        return '';
     }
 });
 
-type Model = {
-    id: number | string;
-    name: string;
-    prompt_price: string | number;
-    completion_price: string | number;
-};
-
-type ChatMessage = {
-    id: number | string;
-    role: 'user' | 'assistant';
-    content: string;
-};
-
-const props = defineProps<{
-    models: Model[];
-    selectedModel?: string;
-    message?: string;
-    response?: string | null;
-    conversations: Array<{ id: number | string; title: string }>;
-    selectedConversationId?: number | string | null;
-    messages?: ChatMessage[];
-    error?: string | null;
-}>();
+const props = defineProps({
+    models: Array,
+    selectedModel: String,
+    message: String,
+    response: String,
+    conversations: Array,
+    selectedConversationId: [Number, String],
+    messages: Array,
+    error: String,
+});
 
 const form = useForm({
     message: props.message ?? '',
@@ -48,7 +35,7 @@ const form = useForm({
 });
 
 const hasMessages = computed(() => (props.messages?.length ?? 0) > 0);
-const messagesEnd = ref<HTMLElement | null>(null);
+const messagesEnd = ref(null);
 
 watch(
     () => props.messages,
@@ -72,7 +59,7 @@ const submit = () => {
     form.post('/ask');
 };
 
-const renderMarkdown = (content: string) => md.render(content);
+const renderMarkdown = (content) => md.render(content);
 </script>
 
 <template>

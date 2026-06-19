@@ -32,9 +32,9 @@ defineProps<Props>();
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
-            <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
-                <Settings class="mr-2 h-4 w-4" />
-                Settings
+            <Link class="block w-full cursor-pointer" href="/user" prefetch>
+                <User class="mr-2 h-4 w-4" />
+                Mon profil
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>
