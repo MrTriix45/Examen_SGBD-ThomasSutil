@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { BookOpen, Settings2, LayoutGrid } from '@lucide/vue';
+import { BookOpen, Settings2, LayoutGrid, MessageSquarePlus } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,7 +16,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
-import Conversations from '@/pages/Ask/Conversations.vue';
+import Conversations from '@/pages/ask/Conversations.vue';
 
 type Conversation = {
     id: number | string;
@@ -28,24 +28,19 @@ const conversations = computed(() => (page.props.conversations ?? []) as Convers
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Test',
-        href: '/',
-        icon: LayoutGrid,
+        title: 'Démarrer une conversation',
+        href: '/ask',
+        icon: MessageSquarePlus,
     },
-];
-
-
-const footerNavItems: NavItem[] = [
     {
         title: 'Settings',
         href: '/iasettings',
         icon: Settings2,
     },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
+];
+
+
+const footerNavItems: NavItem[] = [
 ];
 </script>
 

@@ -119,6 +119,7 @@ class SimpleAskService
             'content' => view('prompts.system', [
                 'now' => $now,
                 'user' => $user,
+                'user_info' => Auth::user()?->user_info ?? 'Aucune information utilisateur disponible.',
                 'humour_level'    => session('humour_level', 5),
                 'sarcasm_level'   => session('sarcasm_level', 5),
                 'pedagogy_level'  => session('pedagogy_level', 5),
