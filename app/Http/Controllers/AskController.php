@@ -143,4 +143,18 @@ class AskController extends Controller
             'response' => $response,
         ]);
     }
+    // TOGGLE FAVORITE
+    public function toggleFavorite(int $id)
+    {
+        $conversation = Conversations::query()
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $conversation->update([
+            'is_favorite' => ! $conversation->is_favorite,
+        ]);
+
+        return back();
+    }
 }

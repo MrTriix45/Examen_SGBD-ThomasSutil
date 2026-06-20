@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { BookOpen, Settings2, LayoutGrid, MessageSquarePlus } from '@lucide/vue';
+import { BookOpen, Settings, Bot, MessageSquarePlus, } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -36,6 +36,17 @@ const mainNavItems: NavItem[] = [
         title: 'Statistiques',
         href: '/user/usage',
         icon: BookOpen,
+    },
+    {
+        title: 'Ma Boite à Tartine',
+        href: '/user',
+        icon: Settings,
+    },
+    // Personnaliser Manuelle
+    {
+        title: 'Personnaliser Manuelle',
+        href: '/iasettings',
+        icon: Bot,
     },
 ];
 

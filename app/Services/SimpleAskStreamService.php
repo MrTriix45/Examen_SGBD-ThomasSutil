@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Generator;
+use App\Models\UserPreferenceIa;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Psr\Http\Message\StreamInterface;
+use App\Services\UsageRecorder;
 
 /**
  * Service simplifié pour le streaming avec l'API OpenRouter.
@@ -23,8 +25,9 @@ class SimpleAskStreamService
     private string $apiKey;
     private string $baseUrl;
 
-    public function __construct()
-    {
+    public function __construct(
+        private UsageRecorder $recorder,
+    ) {
         $this->apiKey = config('services.openrouter.api_key');
         $this->baseUrl = rtrim(config('services.openrouter.base_url', 'https://openrouter.ai/api/v1'), '/');
     }
@@ -81,34 +84,62 @@ class SimpleAskStreamService
         array $messages,
         ?string $model = null,
         float $temperature = 1.0,
-        ?string $reasoningEffort = null
-    ): void {
-        $response = $this->sendStreamRequest($messages, $model, $temperature, $reasoningEffort);
+        ?string $reasoningEffort = null,
+        array $context = []
+    ): string {
+        $model = $model ?? self::DEFAULT_MODEL;
+        $fullText = '';
+        $usage = [];
+        $start = microtime(true);
+
+        // Active le plugin web selon les préférences de l'utilisateur
+        $userPreferences = UserPreferenceIa::getUserPreferences(Auth::user());
+        $webPluginEnabled = (bool) ($userPreferences['web_plugin_enabled'] ?? false);
+
+        $response = $this->sendStreamRequest($messages, $model, $temperature, $reasoningEffort, $webPluginEnabled);
 
         if ($response->failed()) {
             echo "[ERROR] " . $response->json('error.message', 'HTTP Error');
             $this->flush();
-            return;
+            return $fullText;
         }
 
         foreach ($this->parseSSEStream($response->toPsrResponse()->getBody()) as $event) {
             if ($event['type'] === 'error') {
                 echo "[ERROR] " . $event['data'];
                 $this->flush();
-                return;
+                return $fullText;
             }
 
             if ($event['type'] === 'content' && $event['data']) {
+                $fullText .= $event['data'];
                 echo $event['data'];
                 $this->flush();
             }
 
-            // Pour le reasoning, on utilise un préfixe spécial
             if ($event['type'] === 'reasoning' && $event['data']) {
                 echo "[REASONING]" . $event['data'] . "[/REASONING]";
                 $this->flush();
             }
+
+            // Le dernier chunk contient les stats (tokens, coût)
+            if ($event['type'] === 'usage') {
+                $usage = $event['data'];
+            }
         }
+
+        // Enregistre les tokens & coûts (ne doit jamais casser le stream)
+        try {
+            $latency = (int) ((microtime(true) - $start) * 1000);
+            $this->recorder->record($usage, $model, array_merge($context, [
+                'latency_ms'      => $latency,
+                'web_plugin_used' => $webPluginEnabled,
+            ]));
+        } catch (\Throwable $e) {
+            // on ignore : le suivi d'usage ne doit pas bloquer la réponse
+        }
+
+        return $fullText;
     }
 
     /**
@@ -129,17 +160,29 @@ class SimpleAskStreamService
         array $messages,
         ?string $model,
         float $temperature,
-        ?string $reasoningEffort
+        ?string $reasoningEffort,
+        bool $webPluginEnabled = false
     ): \Illuminate\Http\Client\Response {
         $payload = [
             'model' => $model ?? self::DEFAULT_MODEL,
             'messages' => [$this->getSystemPrompt(), ...$messages],
             'temperature' => $temperature,
             'stream' => true,
+            'usage' => ['include' => true],
         ];
 
         if ($reasoningEffort !== null) {
             $payload['reasoning'] = ['effort' => $reasoningEffort];
+        }
+
+        if ($webPluginEnabled) {
+            $payload['plugins'] = [
+                [
+                    'id' => 'web',
+                    'max_results' => 5,
+                    'search_prompt' => 'Voici des résultats web pertinents. Cite tes sources.',
+                ],
+            ];
         }
 
         return Http::withToken($this->apiKey)
@@ -223,6 +266,11 @@ class SimpleAskStreamService
                 return ['type' => 'reasoning', 'data' => $delta['reasoning_content']];
             }
 
+            // Le tout dernier chunk transporte les stats d'usage
+            if (!empty($parsed['usage'])) {
+                return ['type' => 'usage', 'data' => $parsed['usage']];
+            }
+
             return null;
         } catch (\JsonException) {
             return null;
@@ -239,6 +287,12 @@ class SimpleAskStreamService
             'content' => view('prompts.system', [
                 'now' => now()->locale('fr')->format('l d F Y H:i'),
                 'user' => Auth::user()?->name ?? 'l\'utilisateur',
+                'user_info' => Auth::user()?->user_info ?? 'Aucune information utilisateur disponible.',
+                'humour_level'    => session('humour_level', 5),
+                'sarcasm_level'   => session('sarcasm_level', 5),
+                'pedagogy_level'  => session('pedagogy_level', 5),
+                'patience_level'  => session('patience_level', 5),
+                'anger_level'     => session('anger_level', 5),
             ])->render(),
         ];
     }

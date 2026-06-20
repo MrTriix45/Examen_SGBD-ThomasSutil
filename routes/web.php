@@ -2,6 +2,7 @@
 
 // Controller
 use App\Http\Controllers\AskController;
+use App\Http\Controllers\AskStreamController;
 use App\Http\Controllers\UserPreferenceIaController;
 use App\Http\Controllers\UserController;
 
@@ -14,9 +15,12 @@ Route::get('/', function () {
 
 // Routes protégées par authentification
 Route::middleware('auth')->group(function () {
+    // ROUTE - ASK STREAM
+    Route::get('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'index'])->name('ask-stream.index');
+    Route::post('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'stream'])->name('ask-stream.stream');
     // ROUTE - ASK
-    Route::get('/ask', [AskController::class, 'index'])->name('ask.index');
-    Route::post('/ask', [AskController::class, 'ask'])->name('ask.post');
+    //Route::get('/ask', [AskController::class, 'index'])->name('ask.index');
+    //Route::post('/ask', [AskController::class, 'ask'])->name('ask.post');
 
     // ROUTE - IA SETTINGS
     Route::get('/iasettings', [UserPreferenceIaController::class, 'index'])->name('ia-settings.index');
@@ -26,9 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/usage', [UserController::class, 'usage'])->name('user.usage');
     Route::resource('/user', UserController::class);
 
-    // ROUTE - ASK STREAM
-    Route::get('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'index'])->name('ask-stream.index');
-    Route::post('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'stream'])->name('ask-stream.stream');
+    // ROUTE - CONVERSATIONS
+    Route::post('/conversations/{id}/toggle-favorite', [AskStreamController::class, 'toggleFavorite'])->name('conversations.toggleFavorite');
 });
 
 require __DIR__.'/settings.php';
