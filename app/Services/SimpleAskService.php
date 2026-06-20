@@ -92,8 +92,17 @@ class SimpleAskService
                 'model' => $model,
                 'messages' => $messages,
                 'temperature' => $temperature,
-            ])
-        ;
+            ]);
+            // Ajout de la configuration du plugin web si demandé
+            if (session('web_plugin_enabled', false)) {
+                $payload['plugins'] = [
+                    [
+                        'id' => 'web',
+                        'max_results' => 5,
+                        'search_prompt' => 'Voici des résultats web pertinents. Cite tes sources.',
+                    ],
+                ];
+            }
 
         // Gestion des erreurs
         if ($response->failed()) {

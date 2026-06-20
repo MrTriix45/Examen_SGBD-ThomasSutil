@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from '@lucide/vue';
+import { LogOut, Settings, Bot } from '@lucide/vue';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -31,12 +31,21 @@ defineProps<Props>();
     </DropdownMenuLabel>
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
+        <!-- A propos -->
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full cursor-pointer" href="/user" prefetch>
-                <User class="mr-2 h-4 w-4" />
+                <Settings class="mr-2 h-4 w-4" />
                 Ma Boite à Tartine
             </Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <!-- IA Settings -->
+        <DropdownMenuItem :as-child="true">
+            <Link class="block w-full cursor-pointer" href="/iasettings" prefetch>
+                <Bot class="mr-2 h-4 w-4" />
+                Personnaliser Manuelle
+            </Link>
+    </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">

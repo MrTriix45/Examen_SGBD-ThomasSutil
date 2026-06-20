@@ -8,6 +8,7 @@ const props = defineProps({
     pedagogy_level: Number,
     patience_level: Number,
     anger_level: Number,
+    web_plugin_enabled: Boolean,
 });
 
 const form = useForm({
@@ -16,6 +17,7 @@ const form = useForm({
     pedagogy_level: props.pedagogy_level,
     patience_level: props.patience_level,
     anger_level: props.anger_level,
+    web_plugin_enabled: props.web_plugin_enabled,
 });
 const page = usePage()
 const flash = computed(() => page.props.flash)
@@ -29,7 +31,7 @@ const levels = [
     { key: 'sarcasm_level',  label: '😏 Sarcasme',    description: '1 = Diplomate pur, 10 = Ironique jusqu\'à l\'os' },
     { key: 'pedagogy_level', label: '📚 Pédagogie',   description: '1 = Répond sec, 10 = Explique tout comme à un enfant' },
     { key: 'patience_level', label: '🧘 Patience',    description: '1 = Perd vite les nerfs, 10 = Zen absolu' },
-    { key: 'anger_level',    label: '🔥 Colère',      description: '1 = Calme plat, 10 = Volcan en éruption' },
+    { key: 'anger_level',    label: '🔥 Colère',      description: '1 = Calme plat, 10 = Volcan en éruption' }, 
 ];
 
 function levelLabel(val) {
@@ -82,13 +84,17 @@ function levelLabel(val) {
                     <span>10</span>
                 </div>
             </div>
+                <label class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 p-5 cursor-pointer">
+                    <input type="checkbox" v-model="form.web_plugin_enabled" class="h-5 w-5 accent-blue-500" />
+                    <span class="font-semibold text-slate-100">🌐 Activer la recherche web</span>
+                </label>
             <button
                     type="submit"
                     :disabled="form.processing"
                     class="ml-auto rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
                 >
                     {{ form.processing ? 'Sauvegarde...' : 'Sauvegarder' }}
-                </button>
+            </button>
 
             <!-- Flash message -->
             <div
