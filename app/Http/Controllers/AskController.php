@@ -93,7 +93,7 @@ class AskController extends Controller
             ]);
         }
 
-        $conversation->messages()->create([
+        $userMessage = $conversation->messages()->create([
             'content' => $request->message,
             'is_user' => true,
         ]);
@@ -113,7 +113,11 @@ class AskController extends Controller
         try {
             $response = $this->askService->sendMessage(
                 messages: $messages,
-                model: $request->model
+                model: $request->model,
+                context: [
+                    'conversation_id' => $conversation->id,
+                    'message_id'      => $userMessage->id,
+                ],
             );
         } catch (\Exception $e) {
             return $this->renderIndex([

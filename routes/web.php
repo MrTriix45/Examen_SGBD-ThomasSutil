@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/iasettings', [UserPreferenceIaController::class, 'update'])->name('ia-settings.update');
 
     // ROUTE - USER SETTINGS
+    Route::get('/user/usage', [UserController::class, 'usage'])->name('user.usage');
     Route::resource('/user', UserController::class);
 
     // ROUTE - ASK STREAM

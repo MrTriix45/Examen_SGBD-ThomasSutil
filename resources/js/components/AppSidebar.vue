@@ -32,6 +32,11 @@ const mainNavItems: NavItem[] = [
         href: '/ask',
         icon: MessageSquarePlus,
     },
+    {
+        title: 'Statistiques',
+        href: '/user/usage',
+        icon: BookOpen,
+    },
 ];
 
 

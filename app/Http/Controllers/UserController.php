@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\SimpleAskService;
 use App\Models\User;
+use App\Models\Chat_Usage;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -37,5 +38,12 @@ class UserController extends Controller
         $user->update($request->only('name', 'user_info', 'preferred_model'));
 
         return redirect('/user')->with('success', 'Woah, t\'as eu des nouvelles tartines, trop de la chance !');
+    }
+    // Display the user's chat usage statistics
+    public function usage(Request $request)
+    {
+        return Inertia::render('user/Usage', [
+            'stats' => Chat_Usage::getStatsByConversation($request->user()),
+        ]);
     }
 }

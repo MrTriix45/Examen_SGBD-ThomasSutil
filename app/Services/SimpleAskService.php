@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 namespace App\Services;
-
+use App\Models\UserPreferenceIa;
+use App\Services\UsageRecorder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,8 +20,9 @@ class SimpleAskService
     private string $apiKey;
     private string $baseUrl;
 
-    public function __construct()
-    {
+    public function __construct(
+        private UsageRecorder $recorder,
+    ) {
         $this->apiKey = config('services.openrouter.api_key');
         $this->baseUrl = rtrim(config('services.openrouter.base_url', 'https://openrouter.ai/api/v1'), '/');
     }
@@ -76,10 +78,35 @@ class SimpleAskService
      *     }>|string
      * }> $messages
      */
-    public function sendMessage(array $messages, ?string $model = null, float $temperature = 1.0): string
+    public function sendMessage(
+        array $messages,
+        ?string $model = null,
+        float $temperature = 1.0,
+        array $context = [],
+    ): string
     {
         $model = $model ?? self::DEFAULT_MODEL;
         $messages = [$this->getSystemPrompt(), ...$messages];
+
+        $payload = [
+            'model' => $model,
+            'messages' => $messages,
+            'temperature' => $temperature,
+        ];
+
+        $payload['usage'] = ['include' => true];
+        $start = microtime(true);
+        // Ajout de la configuration du plugin web si demandé
+        $userPreferences = UserPreferenceIa::getUserPreferences(Auth::user());
+        if ($userPreferences['web_plugin_enabled']) {
+            $payload['plugins'] = [
+                [
+                    'id' => 'web',
+                    'max_results' => 5,
+                    'search_prompt' => 'Voici des résultats web pertinents. Cite tes sources.',
+                ],
+            ];
+        }
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
@@ -88,26 +115,26 @@ class SimpleAskService
             'X-Title' => config('app.name'),
         ])
             ->timeout(120)
-            ->post($this->baseUrl . '/chat/completions', [
-                'model' => $model,
-                'messages' => $messages,
-                'temperature' => $temperature,
-            ]);
-            // Ajout de la configuration du plugin web si demandé
-            if (session('web_plugin_enabled', false)) {
-                $payload['plugins'] = [
-                    [
-                        'id' => 'web',
-                        'max_results' => 5,
-                        'search_prompt' => 'Voici des résultats web pertinents. Cite tes sources.',
-                    ],
-                ];
-            }
+            ->post($this->baseUrl . '/chat/completions', $payload);
+
+        $latency = (int) ((microtime(true) - $start) * 1000);
 
         // Gestion des erreurs
         if ($response->failed()) {
             $error = $response->json('error.message', 'Erreur inconnue');
             throw new \RuntimeException("Erreur API: {$error}");
+        }
+
+        if ($response->successful()) {
+            $this->recorder->record(
+                $response->json('usage', []),
+                $model,
+                // Pour avoir chaque info
+                array_merge($context, [
+                    'latency_ms'      => $latency,
+                    'web_plugin_used' => isset($payload['plugins']),
+                ])
+            );
         }
 
         return $response->json('choices.0.message.content', '');
