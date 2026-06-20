@@ -2,14 +2,15 @@
 import { useForm, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
-const props = defineProps({ my_user: Object })
+const props = defineProps({ my_user: Object, models: Array })
 const page = usePage()
 const flash = computed(() => page.props.flash)
 
 const form = useForm({
     name: props.my_user.name,
     email: props.my_user.email, 
-    user_info: props.my_user.user_info ?? '',
+    user_info: props.my_user.user_info,
+    preferred_model: props.my_user.preferred_model,
 })
 
 const submit = () => {
@@ -53,6 +54,13 @@ const submit = () => {
                     <div class="flex items-center gap-3 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-3">
                         <span class="w-28 text-xs font-black uppercase tracking-widest text-blue-500">📝 Info</span>
                         <input type="text" class="font-medium text-slate-800" v-model="form.user_info">
+                    </div>
+                    <!-- PREFERRED MODEL -->
+                    <div class="flex items-center gap-3 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-3">
+                        <span class="w-28 text-xs font-black uppercase tracking-widest text-blue-500">🤖 Manuel la Truelle préféré</span>
+                        <select class="font-medium text-slate-800" v-model="form.preferred_model">
+                            <option v-for="model in props.models" :key="model.id" :value="model.id">{{ model.name }}</option>
+                        </select>
                     </div>
                     <!-- CREATED_AT & UPDATED_AT (non modifiables) -->
                     <div class="flex items-center gap-3 rounded-lg border-2 border-yellow-200 bg-yellow-50 px-4 py-3">

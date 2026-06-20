@@ -32,6 +32,6 @@ class IaSettingsController extends Controller
 
         session($validated);
 
-        return back();
+        return redirect()->back()->with('success', 'Paramètres de Manuel la Truelle sauvegardés avec succès !');
     }
 }

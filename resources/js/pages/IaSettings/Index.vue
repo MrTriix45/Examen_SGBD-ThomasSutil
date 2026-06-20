@@ -1,14 +1,14 @@
-<script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
-import { Head } from '@inertiajs/vue3';
+<script setup>
+import { useForm, usePage } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
-const props = defineProps<{
-    humour_level: number;
-    sarcasm_level: number;
-    pedagogy_level: number;
-    patience_level: number;
-    anger_level: number;
-}>();
+const props = defineProps({
+    humour_level: Number,
+    sarcasm_level: Number,
+    pedagogy_level: Number,
+    patience_level: Number,
+    anger_level: Number,
+});
 
 const form = useForm({
     humour_level: props.humour_level,
@@ -17,6 +17,8 @@ const form = useForm({
     patience_level: props.patience_level,
     anger_level: props.anger_level,
 });
+const page = usePage()
+const flash = computed(() => page.props.flash)
 
 const submit = () => {
     form.post('/iasettings');
@@ -28,9 +30,9 @@ const levels = [
     { key: 'pedagogy_level', label: '📚 Pédagogie',   description: '1 = Répond sec, 10 = Explique tout comme à un enfant' },
     { key: 'patience_level', label: '🧘 Patience',    description: '1 = Perd vite les nerfs, 10 = Zen absolu' },
     { key: 'anger_level',    label: '🔥 Colère',      description: '1 = Calme plat, 10 = Volcan en éruption' },
-] as const;
+];
 
-function levelLabel(val: number): string {
+function levelLabel(val) {
     if (val <= 2) return 'Très faible';
     if (val <= 4) return 'Faible';
     if (val <= 6) return 'Modéré';
@@ -44,9 +46,9 @@ function levelLabel(val: number): string {
 
     <div class="mx-auto max-w-2xl p-6">
         <div class="mb-8">
-            <h1 class="text-2xl font-bold text-slate-100">⚙️ Paramètres de l'IA</h1>
+            <h1 class="text-2xl font-bold text-slate-100">⚙️ Paramètres de Manuel la Truelle</h1>
             <p class="mt-1 text-sm text-slate-400">
-                Ajuste la personnalité du maçon portugais selon tes envies.
+                Ajuste la personnalité du maçon portugais selon tes envies mon pote.
             </p>
         </div>
 
@@ -81,20 +83,12 @@ function levelLabel(val: number): string {
                 </div>
             </div>
 
-            <div class="flex items-center justify-between pt-2">
-                <p v-if="form.wasSuccessful" class="text-sm text-green-400">
-                    ✅ Paramètres sauvegardés ! Força Portugal!
-                </p>
-                <p v-if="form.hasErrors" class="text-sm text-red-400">
-                    ❌ Une erreur est survenue.
-                </p>
-                <button
-                    type="submit"
-                    :disabled="form.processing"
-                    class="ml-auto rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
-                >
-                    {{ form.processing ? 'Sauvegarde...' : 'Sauvegarder' }}
-                </button>
+            <!-- Flash message -->
+            <div
+                v-if="flash?.success"
+                class="rounded-lg border-2 border-green-400 bg-green-50 px-4 py-3 text-sm font-bold text-green-700"
+            >
+                ✅ {{ flash.success }}
             </div>
         </form>
     </div>

@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
 
     // ROUTE - USER SETTINGS
     Route::resource('/user', UserController::class);
+
+    // ROUTE - ASK STREAM
+    Route::get('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'index'])->name('ask-stream.index');
+    Route::post('/ask-stream', [\App\Http\Controllers\AskStreamController::class, 'stream'])->name('ask-stream.stream');
 });
 
 require __DIR__.'/settings.php';

@@ -34,7 +34,7 @@ defineProps<Props>();
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full cursor-pointer" href="/user" prefetch>
                 <User class="mr-2 h-4 w-4" />
-                Mon profil
+                Ma Boite à Tartine
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>

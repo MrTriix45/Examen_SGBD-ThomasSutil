@@ -34,7 +34,7 @@ class AskController extends Controller
     {
         return Inertia::render('ask/Index', array_merge([
             'models' => $this->askService->getModels(),
-            'selectedModel' => $this->askService::DEFAULT_MODEL,
+            'selectedModel' => Auth::user()?->preferred_model ?? SimpleAskService::DEFAULT_MODEL,
             'conversations' => Conversations::getListConversationsByUserId(Auth::id()),
             'selectedConversationId' => null,
             'messages' => [],
