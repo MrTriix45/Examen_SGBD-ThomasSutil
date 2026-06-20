@@ -82,6 +82,13 @@ function levelLabel(val) {
                     <span>10</span>
                 </div>
             </div>
+            <button
+                    type="submit"
+                    :disabled="form.processing"
+                    class="ml-auto rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+                >
+                    {{ form.processing ? 'Sauvegarde...' : 'Sauvegarder' }}
+                </button>
 
             <!-- Flash message -->
             <div
