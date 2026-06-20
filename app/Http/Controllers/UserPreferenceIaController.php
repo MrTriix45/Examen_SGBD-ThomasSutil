@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserPreferenceIa;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class IaSettingsController extends Controller
+class UserPreferenceIaController extends Controller
 {
     // Affiche la page avec les niveaux actuels
     public function index()
     {
+        $preferences = UserPreferenceIa::getUserPreferences(Auth::user());
+
         return Inertia::render('IaSettings/Index', [
-            'humour_level'   => session('humour_level', 5),
-            'sarcasm_level'  => session('sarcasm_level', 5),
-            'pedagogy_level' => session('pedagogy_level', 5),
-            'patience_level' => session('patience_level', 5),
-            'anger_level'    => session('anger_level', 5),
-            'web_plugin_enabled' => session('web_plugin_enabled', false),
+            'preferences' => $preferences,
         ]);
     }
 
     // Sauvegarde les niveaux quand on clique "Sauvegarder"
-    public function store(Request $request)
+    public function update(Request $request)
     {
+
         $validated = $request->validate([
             'humour_level'   => 'required|integer|min:1|max:10',
             'sarcasm_level'  => 'required|integer|min:1|max:10',
@@ -32,7 +33,10 @@ class IaSettingsController extends Controller
             'web_plugin_enabled' => 'required|boolean',
         ]);
 
-        session($validated);
+        UserPreferenceIa::updateOrCreate(
+            ['user_id' => Auth::id()],
+            $validated
+        );
 
         $phrase = 'Paramètres de Manuel la Truelle sauvegardés avec succès !';
         if ($validated['anger_level'] > 7) {

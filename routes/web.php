@@ -2,7 +2,7 @@
 
 // Controller
 use App\Http\Controllers\AskController;
-use App\Http\Controllers\IaSettingsController;
+use App\Http\Controllers\UserPreferenceIaController;
 use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Route;
@@ -19,8 +19,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/ask', [AskController::class, 'ask'])->name('ask.post');
 
     // ROUTE - IA SETTINGS
-    Route::get('/iasettings', [IaSettingsController::class, 'index'])->name('ia-settings.index');
-    Route::post('/iasettings', [IaSettingsController::class, 'store'])->name('ia-settings.store');
+    Route::get('/iasettings', [UserPreferenceIaController::class, 'index'])->name('ia-settings.index');
+    Route::post('/iasettings', [UserPreferenceIaController::class, 'update'])->name('ia-settings.update');
 
     // ROUTE - USER SETTINGS
     Route::resource('/user', UserController::class);

@@ -3,21 +3,19 @@ import { useForm, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
 const props = defineProps({
-    humour_level: Number,
-    sarcasm_level: Number,
-    pedagogy_level: Number,
-    patience_level: Number,
-    anger_level: Number,
-    web_plugin_enabled: Boolean,
+    preferences: {
+        type: Object,
+        required: true,
+    },
 });
 
 const form = useForm({
-    humour_level: props.humour_level,
-    sarcasm_level: props.sarcasm_level,
-    pedagogy_level: props.pedagogy_level,
-    patience_level: props.patience_level,
-    anger_level: props.anger_level,
-    web_plugin_enabled: props.web_plugin_enabled,
+    humour_level: props.preferences.humour_level,
+    sarcasm_level: props.preferences.sarcasm_level,
+    pedagogy_level: props.preferences.pedagogy_level,
+    patience_level: props.preferences.patience_level,
+    anger_level: props.preferences.anger_level,
+    web_plugin_enabled: props.preferences.web_plugin_enabled,
 });
 const page = usePage()
 const flash = computed(() => page.props.flash)
@@ -44,65 +42,107 @@ function levelLabel(val) {
 </script>
 
 <template>
-    <Head title="Paramètres IA" />
+    <div class="min-h-full bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-100 text-slate-800">
+        <div class="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8">
 
-    <div class="mx-auto max-w-2xl p-6">
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-slate-100">⚙️ Paramètres de Manuel la Truelle</h1>
-            <p class="mt-1 text-sm text-slate-400">
-                Ajuste la personnalité du maçon portugais selon tes envies mon pote.
-            </p>
-        </div>
-
-        <form @submit.prevent="submit" class="space-y-6">
-            <div
-                v-for="level in levels"
-                :key="level.key"
-                class="rounded-xl border border-slate-700 bg-slate-800/60 p-5"
-            >
-                <div class="mb-3 flex items-center justify-between">
-                    <div>
-                        <span class="font-semibold text-slate-100">{{ level.label }}</span>
-                        <p class="mt-0.5 text-xs text-slate-400">{{ level.description }}</p>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-2xl font-bold text-blue-400">{{ form[level.key] }}</span>
-                        <span class="text-xs text-slate-400">{{ levelLabel(form[level.key]) }}</span>
-                    </div>
-                </div>
-
-                <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    v-model.number="form[level.key]"
-                    class="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-blue-500"
-                />
-                <div class="mt-1 flex justify-between text-xs text-slate-500">
-                    <span>1</span>
-                    <span>5</span>
-                    <span>10</span>
-                </div>
+            <!-- En-tête -->
+            <div class="rounded-xl border-4 border-dashed border-orange-400 bg-white p-4 shadow-lg">
+                <h1 class="mb-1 text-4xl font-black uppercase tracking-widest text-orange-600">
+                    ⚙️ RÉGLAGES DE MANUEL ⚙️
+                </h1>
+                <p class="text-sm font-bold text-yellow-700">
+                    ⚠️ ATTENTION — Tu touches à la personnalité du maçon portugais. Manie les curseurs avec précaution, chef. ⚠️
+                </p>
             </div>
-                <label class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 p-5 cursor-pointer">
-                    <input type="checkbox" v-model="form.web_plugin_enabled" class="h-5 w-5 accent-blue-500" />
-                    <span class="font-semibold text-slate-100">🌐 Activer la recherche web</span>
+
+            <!-- Formulaire de réglages -->
+            <form
+                class="space-y-4 rounded-xl border-4 border-blue-600 bg-white p-6 shadow-2xl"
+                @submit.prevent="submit"
+            >
+                <h2 class="mb-2 text-lg font-black uppercase tracking-widest text-blue-700">
+                    🛠️ Curseurs de personnalité
+                </h2>
+
+                <!-- Bandeau "zone de chantier" -->
+                <div class="flex items-center gap-2 rounded-lg bg-yellow-400 px-3 py-2">
+                    <span class="text-sm font-black uppercase text-yellow-900">
+                        🚧 Zone de réglage — Manuel obéit à ces niveaux 🚧
+                    </span>
+                </div>
+
+                <!-- Sliders 1-10 -->
+                <div
+                    v-for="level in levels"
+                    :key="level.key"
+                    class="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-3"
+                >
+                    <div class="mb-2 flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <span class="block text-sm font-black uppercase tracking-widest text-blue-700">
+                                {{ level.label }}
+                            </span>
+                            <p class="mt-0.5 text-xs font-medium text-blue-500">
+                                {{ level.description }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-2xl font-black text-orange-600">{{ form[level.key] }}</span>
+                            <span class="text-xs font-bold uppercase text-yellow-700">
+                                {{ levelLabel(form[level.key]) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        v-model.number="form[level.key]"
+                        class="h-2 w-full cursor-pointer appearance-none rounded-full bg-blue-200 accent-orange-500"
+                    />
+                    <div class="mt-1 flex justify-between text-xs font-bold text-blue-400">
+                        <span>1</span>
+                        <span>5</span>
+                        <span>10</span>
+                    </div>
+                </div>
+
+                <!-- Toggle Recherche web -->
+                <label class="flex cursor-pointer items-center justify-between gap-3 rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-3">
+                    <div class="flex-1">
+                        <span class="block text-sm font-black uppercase tracking-widest text-blue-700">
+                            🌐 Recherche web
+                        </span>
+                        <p class="mt-0.5 text-xs font-medium text-blue-500">
+                            Laisse Manuel fouiller sur la toile avant de répondre (ça va coûter sur la facture, chef).
+                        </p>
+                    </div>
+                    <input
+                        type="checkbox"
+                        v-model="form.web_plugin_enabled"
+                        class="h-6 w-6 accent-orange-500"
+                    />
                 </label>
-            <button
+
+                <!-- Bouton Sauvegarder -->
+                <button
                     type="submit"
                     :disabled="form.processing"
-                    class="ml-auto rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+                    class="rounded-lg border-4 border-orange-500 bg-orange-400 px-6 py-3 text-lg font-black uppercase tracking-widest text-white shadow-md transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    {{ form.processing ? 'Sauvegarde...' : 'Sauvegarder' }}
-            </button>
+                    {{ form.processing ? '⏳ Sauvegarde en cours...' : '🚀 SAUVEGARDER, ALLEZ !' }}
+                </button>
+            </form>
 
             <!-- Flash message -->
             <div
                 v-if="flash?.success"
-                class="rounded-lg border-2 border-green-400 bg-green-50 px-4 py-3 text-sm font-bold text-green-700"
+                class="rounded-xl border-4 border-green-500 bg-green-50 p-4 font-bold text-green-700"
             >
                 ✅ {{ flash.success }}
             </div>
-        </form>
+
+        </div>
     </div>
 </template>

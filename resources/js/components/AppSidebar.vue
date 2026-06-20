@@ -32,11 +32,6 @@ const mainNavItems: NavItem[] = [
         href: '/ask',
         icon: MessageSquarePlus,
     },
-    {
-        title: 'Settings',
-        href: '/iasettings',
-        icon: Settings2,
-    },
 ];
 
 
