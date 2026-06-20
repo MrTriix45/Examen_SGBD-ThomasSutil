@@ -29,7 +29,7 @@ const conversations = computed(() => (page.props.conversations ?? []) as Convers
 const mainNavItems: NavItem[] = [
     {
         title: 'Démarrer une conversation',
-        href: '/ask',
+        href: '/ask-stream',
         icon: MessageSquarePlus,
     },
     {
